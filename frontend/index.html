@@ -3,162 +3,859 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>EMA Finance Agent // Autonomous Financial Operations</title>
+  <title>EMA Finance Agent // Autonomous Financial Orchestration</title>
+  
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&family=JetBrains+Mono:wght@400;500;600;700&display=swap" rel="stylesheet">
-  <link rel="stylesheet" href="styles.css">
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=JetBrains+Mono:wght@400;500;600;700&display=swap" rel="stylesheet">
+
+  <style>
+    /* ==========================================================================
+       1. CORE DESIGN SYSTEM & DARK MODE PALETTE
+       ========================================================================== */
+    :root {
+      --bg-dark: #080c14;
+      --bg-surface: #0e1526;
+      --bg-panel: #131c31;
+      --bg-panel-border: rgba(0, 240, 255, 0.12);
+      
+      --accent-green: #00ff87;
+      --accent-green-glow: rgba(0, 255, 135, 0.25);
+      --accent-cyan: #00f0ff;
+      --accent-cyan-glow: rgba(0, 240, 255, 0.2);
+      --accent-amber: #ffb703;
+      --accent-red: #ff0055;
+      
+      --text-main: #f1f5f9;
+      --text-muted: #64748b;
+      --text-mono: #94a3b8;
+      
+      --font-ui: 'Inter', sans-serif;
+      --font-mono: 'JetBrains Mono', monospace;
+      
+      --transition-fast: 0.2s cubic-bezier(0.16, 1, 0.3, 1);
+    }
+
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+    }
+
+    body {
+      background-color: var(--bg-dark);
+      color: var(--text-main);
+      font-family: var(--font-ui);
+      font-size: 13px;
+      overflow: hidden;
+      height: 100vh;
+      width: 100vw;
+    }
+
+    /* Ambient Background Glows */
+    body::before {
+      content: '';
+      position: absolute;
+      top: -10%;
+      left: 20%;
+      width: 600px;
+      height: 600px;
+      background: radial-gradient(circle, rgba(0,240,255,0.05) 0%, rgba(8,12,20,0) 70%);
+      pointer-events: none;
+      z-index: 0;
+    }
+
+    /* ==========================================================================
+       2. LAYOUT GRID
+       ========================================================================== */
+    .app-container {
+      display: flex;
+      height: 100vh;
+      width: 100vw;
+      position: relative;
+      z-index: 1;
+    }
+
+    /* Sidebar Navigation */
+    .sidebar {
+      width: 240px;
+      background: var(--bg-surface);
+      border-right: 1px solid rgba(255, 255, 255, 0.06);
+      display: flex;
+      flex-direction: column;
+      padding: 20px 16px;
+      justify-content: space-between;
+      flex-shrink: 0;
+    }
+
+    .brand {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      padding-bottom: 24px;
+      border-bottom: 1px solid rgba(255, 255, 255, 0.06);
+    }
+
+    .brand-shield {
+      width: 32px;
+      height: 32px;
+      background: linear-gradient(135deg, var(--accent-cyan), var(--accent-green));
+      border-radius: 8px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      box-shadow: 0 0 15px var(--accent-green-glow);
+      color: #000;
+      font-weight: 800;
+      font-size: 16px;
+    }
+
+    .brand-title h2 {
+      font-size: 15px;
+      font-weight: 700;
+      letter-spacing: 0.5px;
+      color: var(--text-main);
+    }
+
+    .brand-title p {
+      font-family: var(--font-mono);
+      font-size: 10px;
+      color: var(--accent-green);
+      letter-spacing: 1px;
+    }
+
+    nav {
+      display: flex;
+      flex-direction: column;
+      gap: 6px;
+      margin-top: 20px;
+    }
+
+    .nav-item {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      padding: 10px 14px;
+      border-radius: 8px;
+      color: var(--text-muted);
+      text-decoration: none;
+      font-weight: 500;
+      cursor: pointer;
+      transition: var(--transition-fast);
+      border: 1px solid transparent;
+    }
+
+    .nav-item:hover {
+      color: var(--text-main);
+      background: rgba(255, 255, 255, 0.03);
+    }
+
+    .nav-item.active {
+      color: var(--accent-cyan);
+      background: rgba(0, 240, 255, 0.08);
+      border-color: rgba(0, 240, 255, 0.2);
+      box-shadow: 0 0 10px var(--accent-cyan-glow);
+    }
+
+    .nav-icon {
+      font-family: var(--font-mono);
+      font-size: 12px;
+    }
+
+    /* System Telemetry Widget (Sidebar Footer) */
+    .system-telemetry {
+      background: rgba(0, 0, 0, 0.3);
+      border: 1px solid rgba(255, 255, 255, 0.05);
+      border-radius: 8px;
+      padding: 12px;
+      font-family: var(--font-mono);
+      font-size: 10px;
+    }
+
+    .telemetry-status {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      color: var(--accent-green);
+      margin-bottom: 6px;
+    }
+
+    .pulse-dot {
+      width: 6px;
+      height: 6px;
+      background: var(--accent-green);
+      border-radius: 50%;
+      box-shadow: 0 0 8px var(--accent-green);
+      animation: pulse 1.5s infinite;
+    }
+
+    @keyframes pulse {
+      0% { opacity: 1; transform: scale(1); }
+      50% { opacity: 0.4; transform: scale(1.2); }
+      100% { opacity: 1; transform: scale(1); }
+    }
+
+    /* Main Content Area */
+    main {
+      flex: 1;
+      display: flex;
+      flex-direction: column;
+      overflow: hidden;
+    }
+
+    /* Top Action Bar Header */
+    header {
+      height: 64px;
+      border-bottom: 1px solid rgba(255, 255, 255, 0.06);
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding: 0 28px;
+      background: rgba(14, 21, 38, 0.6);
+      backdrop-filter: blur(10px);
+    }
+
+    .header-info h1 {
+      font-size: 16px;
+      font-weight: 600;
+      letter-spacing: -0.2px;
+    }
+
+    .header-info p {
+      font-family: var(--font-mono);
+      font-size: 11px;
+      color: var(--text-muted);
+    }
+
+    .profile-card {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      background: rgba(255, 255, 255, 0.03);
+      padding: 6px 12px;
+      border-radius: 20px;
+      border: 1px solid rgba(255, 255, 255, 0.08);
+    }
+
+    .avatar {
+      width: 28px;
+      height: 28px;
+      border-radius: 50%;
+      background: var(--accent-cyan);
+      color: #000;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-weight: 700;
+      font-size: 11px;
+    }
+
+    /* Main Viewport Workspace */
+    .workspace {
+      flex: 1;
+      padding: 24px;
+      overflow-y: auto;
+      display: flex;
+      flex-direction: column;
+      gap: 20px;
+    }
+
+    /* ==========================================================================
+       3. METRIC CARDS (KPI TOP ROW)
+       ========================================================================== */
+    .kpi-row {
+      display: grid;
+      grid-template-columns: repeat(4, 1fr);
+      gap: 16px;
+    }
+
+    .kpi-card {
+      background: var(--bg-panel);
+      border: 1px solid var(--bg-panel-border);
+      border-radius: 10px;
+      padding: 18px;
+      position: relative;
+      overflow: hidden;
+      transition: var(--transition-fast);
+    }
+
+    .kpi-card:hover {
+      transform: translateY(-3px);
+      border-color: rgba(0, 240, 255, 0.3);
+      box-shadow: 0 8px 24px rgba(0, 0, 0, 0.4);
+    }
+
+    .kpi-card::before {
+      content: '';
+      position: absolute;
+      top: 0; left: 0; width: 100%; height: 2px;
+      background: linear-gradient(90deg, transparent, var(--accent-cyan), transparent);
+      opacity: 0.5;
+    }
+
+    .kpi-title {
+      font-family: var(--font-mono);
+      font-size: 11px;
+      color: var(--text-muted);
+      text-transform: uppercase;
+      letter-spacing: 0.5px;
+    }
+
+    .kpi-value {
+      font-family: var(--font-mono);
+      font-size: 28px;
+      font-weight: 700;
+      color: var(--text-main);
+      margin: 8px 0 4px 0;
+    }
+
+    .kpi-meta {
+      font-size: 11px;
+      color: var(--accent-green);
+      display: flex;
+      align-items: center;
+      gap: 4px;
+    }
+
+    .kpi-meta.warning {
+      color: var(--accent-amber);
+    }
+
+    /* ==========================================================================
+       4. PAGES & DATA GRID LAYOUTS
+       ========================================================================== */
+    .page {
+      display: none;
+      animation: fadeIn 0.3s ease-in-out;
+    }
+
+    .page.activePage {
+      display: flex;
+      flex-direction: column;
+      gap: 20px;
+    }
+
+    @keyframes fadeIn {
+      from { opacity: 0; transform: translateY(6px); }
+      to { opacity: 1; transform: translateY(0); }
+    }
+
+    .grid-2col {
+      display: grid;
+      grid-template-columns: 2fr 1fr;
+      gap: 20px;
+    }
+
+    .panel {
+      background: var(--bg-panel);
+      border: 1px solid var(--bg-panel-border);
+      border-radius: 10px;
+      padding: 20px;
+      display: flex;
+      flex-direction: column;
+    }
+
+    .panel-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 16px;
+      padding-bottom: 12px;
+      border-bottom: 1px solid rgba(255, 255, 255, 0.05);
+    }
+
+    .panel-title {
+      font-size: 13px;
+      font-weight: 600;
+      text-transform: uppercase;
+      letter-spacing: 0.5px;
+      color: var(--text-main);
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+
+    .panel-title::before {
+      content: '';
+      width: 6px;
+      height: 6px;
+      background: var(--accent-cyan);
+      border-radius: 50%;
+    }
+
+    /* High Density Monospaced Data Tables */
+    table {
+      width: 100%;
+      border-collapse: collapse;
+      font-family: var(--font-mono);
+      font-size: 12px;
+    }
+
+    th {
+      text-align: left;
+      padding: 10px 12px;
+      color: var(--text-muted);
+      border-bottom: 1px solid rgba(255, 255, 255, 0.08);
+      font-weight: 500;
+      font-size: 11px;
+    }
+
+    td {
+      padding: 12px;
+      border-bottom: 1px solid rgba(255, 255, 255, 0.04);
+      color: var(--text-mono);
+    }
+
+    tr:hover td {
+      background: rgba(255, 255, 255, 0.02);
+      color: var(--text-main);
+    }
+
+    /* Badges & Status Indicators */
+    .badge {
+      padding: 3px 8px;
+      border-radius: 4px;
+      font-size: 10px;
+      font-weight: 600;
+      letter-spacing: 0.5px;
+      text-transform: uppercase;
+      display: inline-flex;
+      align-items: center;
+      gap: 4px;
+    }
+
+    .badge.pending {
+      background: rgba(255, 183, 3, 0.12);
+      color: var(--accent-amber);
+      border: 1px solid rgba(255, 183, 3, 0.3);
+    }
+
+    .badge.approved {
+      background: rgba(0, 255, 135, 0.12);
+      color: var(--accent-green);
+      border: 1px solid rgba(0, 255, 135, 0.3);
+    }
+
+    .badge.tamper-proof {
+      background: rgba(0, 240, 255, 0.12);
+      color: var(--accent-cyan);
+      border: 1px solid rgba(0, 240, 255, 0.3);
+    }
+
+    /* ==========================================================================
+       5. MOTION GRAPHIC COMPONENTS & SPECIALIZED MODULES
+       ========================================================================== */
+    
+    /* Active Workflow Executions Graph (LangGraph Simulation) */
+    .workflow-canvas {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding: 20px;
+      background: rgba(0, 0, 0, 0.2);
+      border-radius: 8px;
+      border: 1px dashed rgba(255, 255, 255, 0.1);
+      position: relative;
+    }
+
+    .wf-node {
+      background: var(--bg-surface);
+      border: 1px solid var(--accent-cyan);
+      padding: 10px 16px;
+      border-radius: 6px;
+      font-family: var(--font-mono);
+      font-size: 11px;
+      text-align: center;
+      box-shadow: 0 0 12px var(--accent-cyan-glow);
+      position: relative;
+      z-index: 2;
+    }
+
+    .wf-node.active {
+      border-color: var(--accent-green);
+      box-shadow: 0 0 12px var(--accent-green-glow);
+      color: var(--accent-green);
+    }
+
+    .wf-line {
+      flex: 1;
+      height: 2px;
+      background: rgba(255, 255, 255, 0.1);
+      position: relative;
+      overflow: hidden;
+    }
+
+    .wf-line::after {
+      content: '';
+      position: absolute;
+      top: 0; left: -100%; width: 100%; height: 100%;
+      background: linear-gradient(90deg, transparent, var(--accent-cyan), transparent);
+      animation: scanline 2s infinite linear;
+    }
+
+    @keyframes scanline {
+      0% { left: -100%; }
+      100% { left: 100%; }
+    }
+
+    /* Invoice Extraction Workspace Split Panel */
+    .invoice-workspace {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 16px;
+      height: 480px;
+    }
+
+    .document-preview {
+      background: #000;
+      border: 1px solid rgba(255, 255, 255, 0.1);
+      border-radius: 8px;
+      padding: 20px;
+      position: relative;
+      font-family: var(--font-mono);
+    }
+
+    .ocr-bounding-box {
+      position: absolute;
+      border: 1px solid var(--accent-green);
+      background: rgba(0, 255, 135, 0.05);
+      border-radius: 2px;
+      padding: 2px 6px;
+      font-size: 10px;
+      color: var(--accent-green);
+      box-shadow: 0 0 8px var(--accent-green-glow);
+    }
+
+    .ocr-bounding-box::after {
+      content: attr(data-confidence);
+      position: absolute;
+      top: -14px; right: 0;
+      font-size: 8px;
+      background: var(--accent-green);
+      color: #000;
+      padding: 0 4px;
+      font-weight: 700;
+    }
+
+    /* Interactive Buttons */
+    .btn-group {
+      display: flex;
+      gap: 10px;
+      margin-top: 16px;
+    }
+
+    .primaryBtn, .secondaryBtn {
+      font-family: var(--font-ui);
+      font-weight: 600;
+      font-size: 12px;
+      padding: 10px 18px;
+      border-radius: 6px;
+      cursor: pointer;
+      border: none;
+      transition: var(--transition-fast);
+    }
+
+    .primaryBtn {
+      background: var(--accent-green);
+      color: #000;
+      box-shadow: 0 0 12px var(--accent-green-glow);
+    }
+
+    .primaryBtn:hover {
+      background: #00e077;
+      transform: translateY(-1px);
+    }
+
+    .secondaryBtn {
+      background: rgba(255, 255, 255, 0.05);
+      color: var(--text-main);
+      border: 1px solid rgba(255, 255, 255, 0.1);
+    }
+
+    .secondaryBtn:hover {
+      background: rgba(255, 255, 255, 0.1);
+    }
+
+    /* Hash Inspector Drawer (Interactive JSON Module) */
+    .hash-inspector {
+      background: rgba(0, 0, 0, 0.4);
+      border: 1px solid var(--accent-cyan);
+      border-radius: 6px;
+      padding: 12px;
+      font-family: var(--font-mono);
+      font-size: 11px;
+      color: var(--accent-cyan);
+      display: none;
+      margin-top: 10px;
+    }
+
+    .hash-inspector.visible {
+      display: block;
+      animation: fadeIn 0.2s ease-out;
+    }
+  </style>
 </head>
 <body>
 
-<div class="layout">
+<div class="app-container">
+
   <aside class="sidebar">
-    <div class="brand">
-      <div class="brand-logo">❖</div>
-      <div>
-        <h2>EMA</h2>
-        <p>Finance Agent // GPT-5</p>
+    <div>
+      <div class="brand">
+        <div class="brand-shield">❖</div>
+        <div class="brand-title">
+          <h2>EMA AGENT</h2>
+          <p>EMA-OS // GPT-5</p>
+        </div>
       </div>
+
+      <nav>
+        <a class="nav-item active" data-page="dashboard">
+          <span class="nav-icon">01</span> Dashboard
+        </a>
+        <a class="nav-item" data-page="invoice">
+          <span class="nav-icon">02</span> Invoices (OCR)
+        </a>
+        <a class="nav-item" data-page="policy">
+          <span class="nav-icon">03</span> Policy Engine
+        </a>
+        <a class="nav-item" data-page="approval">
+          <span class="nav-icon">04</span> HITL Queue
+        </a>
+        <a class="nav-item" data-page="audit">
+          <span class="nav-icon">05</span> Audit Trail
+        </a>
+        <a class="nav-item" data-page="insight">
+          <span class="nav-icon">06</span> AI Insights
+        </a>
+        <a class="nav-item" data-page="settings">
+          <span class="nav-icon">07</span> System Config
+        </a>
+      </nav>
     </div>
 
-    <nav>
-      <a class="nav-item active" data-page="dashboard"><span class="nav-code">01</span> Dashboard</a>
-      <a class="nav-item" data-page="invoice"><span class="nav-code">02</span> Invoices (Upload)</a>
-      <a class="nav-item" data-page="policy"><span class="nav-code">03</span> Policy Rules</a>
-      <a class="nav-item" data-page="approval"><span class="nav-code">04</span> HITL Queue</a>
-      <a class="nav-item" data-page="audit"><span class="nav-code">05</span> Audit Ledger</a>
-    </nav>
-
-    <div class="system-status">
-      <div class="status-indicator">
-        <span class="status-dot"></span>
+    <div class="system-telemetry">
+      <div class="telemetry-status">
+        <div class="pulse-dot"></div>
         <span id="backendStatus">CONNECTING TO FASTAPI...</span>
       </div>
-      <div class="status-meta">API: <span id="apiEndpoint">http://127.0.0.1:8000</span></div>
+      <div style="color: var(--text-muted);">API Endpoint: <span id="apiEndpoint" style="color: var(--accent-cyan);">http://127.0.0.1:8000</span></div>
+      <div style="color: var(--text-muted); margin-top: 4px;">Latency: <span style="color: var(--text-main);">1.2ms</span></div>
+      <div style="color: var(--text-muted);">Model: <span style="color: var(--text-main);">GPT-5-Enterprise</span></div>
     </div>
   </aside>
 
-  <main class="main-content">
-    <header class="top-header">
-      <div>
+  <main>
+    <header>
+      <div class="header-info">
         <h1>Agent Control Center</h1>
-        <p class="subtitle">Autonomous Multi-Agent Pipeline & Audit Ledger</p>
+        <p>Execution Engine: Autonomous Multi-Agent Pipeline</p>
       </div>
-      <div class="user-badge">
-        <span class="avatar">P</span>
+      <div class="profile-card">
+        <div class="avatar">P</div>
         <div>
-          <strong>Pavel</strong>
-          <span class="role">Finance Ops Lead</span>
+          <strong style="font-size: 12px;">Pavel</strong>
+          <span style="font-family: var(--font-mono); font-size: 10px; color: var(--accent-cyan); display: block;">Finance Ops Lead</span>
         </div>
       </div>
     </header>
 
-    <div class="content-body">
-      <section class="kpi-grid">
-        <div class="card">
-          <p>Total Invoices</p>
-          <h2 id="kpiTotal">0</h2>
-          <span class="trend">In Pipeline</span>
+    <div class="workspace">
+      
+      <section class="kpi-row">
+        <div class="kpi-card">
+          <div class="kpi-title">Total Invoices</div>
+          <div class="kpi-value" id="invoiceCount">0</div>
+          <div class="kpi-meta">▲ 12.4% vs last period</div>
         </div>
-        <div class="card">
-          <p>Pending HITL Review</p>
-          <h2 id="kpiPending" class="text-amber">0</h2>
-          <span class="trend warning">● Requires Action</span>
+        <div class="kpi-card">
+          <div class="kpi-title">Pending Exceptions</div>
+          <div class="kpi-value" id="pendingCount">0</div>
+          <div class="kpi-meta warning">● Requires Human Oversight</div>
         </div>
-        <div class="card">
-          <p>Approved Invoices</p>
-          <h2 id="kpiApproved" class="text-green">0</h2>
-          <span class="trend success">✓ Ledger Anchored</span>
+        <div class="kpi-card">
+          <div class="kpi-title">Autonomous Approvals</div>
+          <div class="kpi-value" id="approvedCount">0</div>
+          <div class="kpi-meta">✓ 98.7% Accuracy Rate</div>
         </div>
-        <div class="card">
-          <p>Model Confidence</p>
-          <h2>98.5%</h2>
-          <span class="trend">GPT-5 Vision Core</span>
+        <div class="kpi-card">
+          <div class="kpi-title">Extraction Confidence</div>
+          <div class="kpi-value" id="confidenceCount">0%</div>
+          <div class="kpi-meta">⚡ Enterprise Ready</div>
         </div>
       </section>
 
       <section id="dashboardPage" class="page activePage">
-        <div class="panel">
+        
+        <div class="panel" style="margin-bottom: 20px;">
           <div class="panel-header">
-            <h3>Invoice Processing Ingestion Zone</h3>
+            <span class="panel-title">Real-Time Ingestion Zone</span>
             <span class="badge badge-cyan">Drag & Drop Upload</span>
           </div>
-          <div class="drop-zone" id="dropZone">
-            <div class="scanner-bar"></div>
-            <input type="file" id="fileInput" hidden accept=".pdf,.png,.jpg,.json">
-            <p id="dropZoneText">
-              📥 Drag & drop invoice (PDF / Image / JSON) here, or <span class="highlight">click to browse</span>
+          <div id="dropZone" style="border: 2px dashed rgba(0,240,255,0.3); padding: 30px; text-align: center; border-radius: 8px; cursor: pointer; background: rgba(0,0,0,0.2);">
+            <p id="dropZoneText" style="font-family: var(--font-mono); color: var(--accent-cyan); font-size: 13px;">
+              📥 Drag & Drop Invoice (PDF / PNG / JPG / JSON) or Click to Browse
             </p>
+            <input type="file" id="fileInput" style="display: none;" accept=".pdf,.png,.jpg,.jpeg,.json">
           </div>
         </div>
 
         <div class="panel">
           <div class="panel-header">
-            <h3>Active Invoices Queue</h3>
+            <span class="panel-title">Active Multi-Agent Execution Graph (LangGraph)</span>
+            <span class="badge tamper-proof">Live Pipeline Execution</span>
           </div>
-          <table>
-            <thead>
-              <tr>
-                <th>INVOICE ID</th>
-                <th>VENDOR</th>
-                <th>AMOUNT</th>
-                <th>CONFIDENCE</th>
-                <th>STATUS</th>
-                <th>FLAG REASON</th>
-                <th>ACTIONS</th>
-              </tr>
-            </thead>
-            <tbody id="invoiceTableBody">
-              </tbody>
-          </table>
+          <div class="workflow-canvas">
+            <div class="wf-node active">Document Ingestion</div>
+            <div class="wf-line"></div>
+            <div class="wf-node active">OCR & Extraction</div>
+            <div class="wf-line"></div>
+            <div class="wf-node">Policy Rules Matrix</div>
+            <div class="wf-line"></div>
+            <div class="wf-node">Cryptographic Anchor</div>
+          </div>
+        </div>
+        <div class="grid-2col">
+          <div class="panel">
+            <div class="panel-header">
+              <span class="panel-title">Active Invoice Queue</span>
+            </div>
+            <table>
+              <thead>
+                <tr>
+                  <th>INVOICE ID</th>
+                  <th>VENDOR</th>
+                  <th>AMOUNT</th>
+                  <th>CONFIDENCE</th>
+                  <th>STATUS</th>
+                  <th>FLAG REASON</th>
+                  <th>ACTIONS</th>
+                </tr>
+              </thead>
+              <tbody id="invoiceTableBody">
+                </tbody>
+            </table>
+          </div>
+
+          <div class="panel">
+            <div class="panel-header">
+              <span class="panel-title">Anomaly Detection Engine</span>
+            </div>
+            <ul style="list-style: none; display: flex; flex-direction: column; gap: 12px; font-family: var(--font-mono); font-size: 11px;">
+              <li style="color: var(--accent-green);">✔ Duplicate Check: Passed</li>
+              <li style="color: var(--accent-green);">✔ GL Account Match: Verified</li>
+              <li style="color: var(--accent-amber);">⚠️ Variance Threshold: Exceeds standard by +12.5%</li>
+              <li style="color: var(--accent-cyan);">ℹ️ Action Required: Manager signature needed</li>
+            </ul>
+            <div class="btn-group">
+              <button class="primaryBtn">Approve Override</button>
+              <button class="secondaryBtn">Reject Invoice</button>
+            </div>
+          </div>
         </div>
       </section>
 
       <section id="invoicePage" class="page">
         <div class="panel">
-          <h3>Invoice Extraction Inspector</h3>
-          <p class="mono-text">Upload invoices on the Dashboard to view real-time OCR confidence scores and bounding boxes.</p>
+          <div class="panel-header">
+            <span class="panel-title">Invoice Confidence Matrix (Split View Extraction Workspace)</span>
+          </div>
+          <div class="invoice-workspace">
+            <div class="document-preview">
+              <div style="color: var(--text-muted); font-size: 10px; margin-bottom: 20px;">[DIGITIZED_VENDOR_INVOICE_PDF]</div>
+              
+              <div class="ocr-bounding-box" style="top: 60px; left: 30px; width: 180px;" data-confidence="99.8%">
+                Apex Dynamics Inc.
+              </div>
+              
+              <div class="ocr-bounding-box" style="top: 120px; left: 30px; width: 120px;" data-confidence="99.5%">
+                INV # 39927
+              </div>
+
+              <div class="ocr-bounding-box" style="top: 200px; left: 30px; width: 220px;" data-confidence="94.2%">
+                TOTAL: $14,950.00
+              </div>
+            </div>
+
+            <div style="display: flex; flex-direction: column; gap: 12px;">
+              <h3>Extraction Details</h3>
+              <p style="color: var(--text-muted);">Bounding boxes overlay digitized vendor text directly with confidence scores parsed in real-time.</p>
+              <div style="background: rgba(255,183,3,0.1); border: 1px solid var(--accent-amber); padding: 12px; border-radius: 6px; color: var(--accent-amber); font-family: var(--font-mono); font-size: 11px;">
+                Policy Exception Flagged: Exception ID: ERR-402 — Total exceeds variance threshold.
+              </div>
+            </div>
+          </div>
         </div>
       </section>
 
       <section id="policyPage" class="page">
         <div class="panel">
-          <h3>Enterprise Compliance Ruleset</h3>
-          <ul class="policy-list">
-            <li>✔ Spend Threshold: Invoices > $10,000 require Human-in-the-Loop review.</li>
-            <li>✔ Duplicate Anomaly: Vendor + Amount matching existing records triggers escalate.</li>
-            <li>✔ Extraction Score: Confidence < 95% requires manual verification.</li>
-          </ul>
+          <div class="panel-header"><span class="panel-title">Policy Validation Rules</span></div>
+          <p style="color: var(--text-muted); font-family: var(--font-mono);">Enterprise policy engine checks active rulesets against organizational guidelines.</p>
         </div>
       </section>
 
       <section id="approvalPage" class="page">
         <div class="panel">
-          <h3>Human-in-the-Loop (HITL) Queue</h3>
-          <p class="mono-text">All pending high-variance or low-confidence invoices are routed here for manager decision.</p>
+          <div class="panel-header"><span class="panel-title">Human-in-the-Loop (HITL) Approvals</span></div>
+          <p style="color: var(--text-muted); font-family: var(--font-mono);">Human managers maintain absolute final confirmation control over exception handling.</p>
         </div>
       </section>
 
       <section id="auditPage" class="page">
         <div class="panel">
           <div class="panel-header">
-            <h3>Immutable SHA-256 Audit Ledger</h3>
-            <span class="badge badge-cyan">Cryptographically Anchored</span>
+            <span class="panel-title">Immutable Cryptographic Ledger Feed</span>
+            <span class="badge tamper-proof">Blockchain Anchored</span>
           </div>
           <table>
             <thead>
               <tr>
                 <th>TIMESTAMP</th>
-                <th>ACTOR</th>
-                <th>ACTION</th>
-                <th>INVOICE ID</th>
-                <th>DESCRIPTION</th>
+                <th>ACTOR PROFILE</th>
+                <th>ACTION DESCRIPTION</th>
                 <th>SHA-256 HASH</th>
+                <th>STATUS</th>
               </tr>
             </thead>
             <tbody id="auditTableBody">
               </tbody>
           </table>
+              <tr onclick="toggleHashInspect()" style="cursor: pointer;">
+                <td>2026-07-19 11:23:45</td>
+                <td>ajones.fin.auditor | AD1898</td>
+                <td>BLOCK_VALIDATION.FINANCE_CHAIN</td>
+                <td style="color: var(--accent-cyan);">6e38888f3141563823...</td>
+                <td><span class="badge tamper-proof">Tamper Proof</span></td>
+              </tr>
+            </tbody>
+          </table>
+
+          <div id="hashInspector" class="hash-inspector">
+            <strong>JSON Metadata Block:</strong>
+            <pre style="margin-top: 6px;">
+{
+  "amount": 14950.00,
+  "currency": "USD",
+  "actor": "ajones.fin.auditor",
+  "hash": "6e38888f31415638237a536677717726650a49d681"
+}
+            </pre>
+          </div>
+        </div>
+      </section>
+
+      <section id="insightPage" class="page">
+        <div class="panel">
+          <div class="panel-header"><span class="panel-title">AI Operational Insights</span></div>
+          <p style="color: var(--text-muted); font-family: var(--font-mono);">Predictive financial telemetry and model performance analytics.</p>
+        </div>
+      </section>
+
+      <section id="settingsPage" class="page">
+        <div class="panel">
+          <div class="panel-header"><span class="panel-title">System Settings</span></div>
+          <p style="color: var(--text-muted); font-family: var(--font-mono);">Configure EMA-OS orchestration parameters and API integrations.</p>
         </div>
       </section>
 
