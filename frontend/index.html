@@ -1,0 +1,171 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>EMA Finance Agent // Autonomous Financial Operations</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&family=JetBrains+Mono:wght@400;500;600;700&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="styles.css">
+</head>
+<body>
+
+<div class="layout">
+  <aside class="sidebar">
+    <div class="brand">
+      <div class="brand-logo">❖</div>
+      <div>
+        <h2>EMA</h2>
+        <p>Finance Agent // GPT-5</p>
+      </div>
+    </div>
+
+    <nav>
+      <a class="nav-item active" data-page="dashboard"><span class="nav-code">01</span> Dashboard</a>
+      <a class="nav-item" data-page="invoice"><span class="nav-code">02</span> Invoices (Upload)</a>
+      <a class="nav-item" data-page="policy"><span class="nav-code">03</span> Policy Rules</a>
+      <a class="nav-item" data-page="approval"><span class="nav-code">04</span> HITL Queue</a>
+      <a class="nav-item" data-page="audit"><span class="nav-code">05</span> Audit Ledger</a>
+    </nav>
+
+    <div class="system-status">
+      <div class="status-indicator">
+        <span class="status-dot"></span>
+        <span id="backendStatus">CONNECTING TO FASTAPI...</span>
+      </div>
+      <div class="status-meta">API: <span id="apiEndpoint">http://127.0.0.1:8000</span></div>
+    </div>
+  </aside>
+
+  <main class="main-content">
+    <header class="top-header">
+      <div>
+        <h1>Agent Control Center</h1>
+        <p class="subtitle">Autonomous Multi-Agent Pipeline & Audit Ledger</p>
+      </div>
+      <div class="user-badge">
+        <span class="avatar">P</span>
+        <div>
+          <strong>Pavel</strong>
+          <span class="role">Finance Ops Lead</span>
+        </div>
+      </div>
+    </header>
+
+    <div class="content-body">
+      <section class="kpi-grid">
+        <div class="card">
+          <p>Total Invoices</p>
+          <h2 id="kpiTotal">0</h2>
+          <span class="trend">In Pipeline</span>
+        </div>
+        <div class="card">
+          <p>Pending HITL Review</p>
+          <h2 id="kpiPending" class="text-amber">0</h2>
+          <span class="trend warning">● Requires Action</span>
+        </div>
+        <div class="card">
+          <p>Approved Invoices</p>
+          <h2 id="kpiApproved" class="text-green">0</h2>
+          <span class="trend success">✓ Ledger Anchored</span>
+        </div>
+        <div class="card">
+          <p>Model Confidence</p>
+          <h2>98.5%</h2>
+          <span class="trend">GPT-5 Vision Core</span>
+        </div>
+      </section>
+
+      <section id="dashboardPage" class="page activePage">
+        <div class="panel">
+          <div class="panel-header">
+            <h3>Invoice Processing Ingestion Zone</h3>
+            <span class="badge badge-cyan">Drag & Drop Upload</span>
+          </div>
+          <div class="drop-zone" id="dropZone">
+            <div class="scanner-bar"></div>
+            <input type="file" id="fileInput" hidden accept=".pdf,.png,.jpg,.json">
+            <p id="dropZoneText">
+              📥 Drag & drop invoice (PDF / Image / JSON) here, or <span class="highlight">click to browse</span>
+            </p>
+          </div>
+        </div>
+
+        <div class="panel">
+          <div class="panel-header">
+            <h3>Active Invoices Queue</h3>
+          </div>
+          <table>
+            <thead>
+              <tr>
+                <th>INVOICE ID</th>
+                <th>VENDOR</th>
+                <th>AMOUNT</th>
+                <th>CONFIDENCE</th>
+                <th>STATUS</th>
+                <th>FLAG REASON</th>
+                <th>ACTIONS</th>
+              </tr>
+            </thead>
+            <tbody id="invoiceTableBody">
+              </tbody>
+          </table>
+        </div>
+      </section>
+
+      <section id="invoicePage" class="page">
+        <div class="panel">
+          <h3>Invoice Extraction Inspector</h3>
+          <p class="mono-text">Upload invoices on the Dashboard to view real-time OCR confidence scores and bounding boxes.</p>
+        </div>
+      </section>
+
+      <section id="policyPage" class="page">
+        <div class="panel">
+          <h3>Enterprise Compliance Ruleset</h3>
+          <ul class="policy-list">
+            <li>✔ Spend Threshold: Invoices > $10,000 require Human-in-the-Loop review.</li>
+            <li>✔ Duplicate Anomaly: Vendor + Amount matching existing records triggers escalate.</li>
+            <li>✔ Extraction Score: Confidence < 95% requires manual verification.</li>
+          </ul>
+        </div>
+      </section>
+
+      <section id="approvalPage" class="page">
+        <div class="panel">
+          <h3>Human-in-the-Loop (HITL) Queue</h3>
+          <p class="mono-text">All pending high-variance or low-confidence invoices are routed here for manager decision.</p>
+        </div>
+      </section>
+
+      <section id="auditPage" class="page">
+        <div class="panel">
+          <div class="panel-header">
+            <h3>Immutable SHA-256 Audit Ledger</h3>
+            <span class="badge badge-cyan">Cryptographically Anchored</span>
+          </div>
+          <table>
+            <thead>
+              <tr>
+                <th>TIMESTAMP</th>
+                <th>ACTOR</th>
+                <th>ACTION</th>
+                <th>INVOICE ID</th>
+                <th>DESCRIPTION</th>
+                <th>SHA-256 HASH</th>
+              </tr>
+            </thead>
+            <tbody id="auditTableBody">
+              </tbody>
+          </table>
+        </div>
+      </section>
+
+    </div>
+  </main>
+</div>
+
+<script src="app.js"></script>
+</body>
+</html>
